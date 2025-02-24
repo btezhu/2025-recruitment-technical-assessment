@@ -102,7 +102,7 @@ def get_summary(name: str) -> Tuple[int, Counter[str]] | None:
 		answer = total_time, total_ingredients
 
 	elif isinstance(entry, Ingredient):
-		answer = entry.cook_time, Counter({name: entry.cook_time})
+		answer = entry.cook_time, Counter({name: 1})
 	
 	memo[name] = answer
 	return answer
