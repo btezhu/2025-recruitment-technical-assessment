@@ -20,6 +20,7 @@ app = Flask(__name__)
 
 # Store your recipes here!
 cookbook: Dict[str, Recipe | Ingredient] = {}
+memo: Dict[str, Tuple[int, Counter[str]] | None] = {}
 
 # Task 1 helper (don't touch)
 @app.route("/parse", methods=['POST'])
@@ -44,6 +45,8 @@ def parse_handwriting(recipeName: str) -> Union[str | None]:
 # Endpoint that adds a CookbookEntry to your magical cookbook
 @app.route('/entry', methods=['POST'])
 def create_entry():
+	global memo
+
 	data = request.json
 
 	name = data["name"]
@@ -66,7 +69,8 @@ def create_entry():
 		cookbook[name] = Ingredient(cook_time)
 
 	else: return 'Invalid type', 400
-
+	
+	memo = {}
 	return '', 200
 
 
@@ -74,6 +78,8 @@ def create_entry():
 # Endpoint that returns a summary of a recipe that corresponds to a query name
 
 def get_summary(name: str) -> Tuple[int, Counter[str]] | None:
+	if name in memo: return memo[name]
+
 	if name not in cookbook: return None
 	entry = cookbook[name]
 
@@ -93,10 +99,13 @@ def get_summary(name: str) -> Tuple[int, Counter[str]] | None:
 			})
 			total_ingredients.update(item_ingredients)
 		
-		return total_time, total_ingredients
+		answer = total_time, total_ingredients
 
 	elif isinstance(entry, Ingredient):
-		return entry.cook_time, Counter({name: entry.cook_time})
+		answer = entry.cook_time, Counter({name: entry.cook_time})
+	
+	memo[name] = answer
+	return answer
 
 @app.route('/summary', methods=['GET'])
 def summary():
