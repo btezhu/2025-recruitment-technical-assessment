@@ -41,10 +41,13 @@ def parse():
 	return jsonify({'msg': parsed_name}), 200
 
 # [TASK 1] ====================================================================
-# Takes in a recipeName and returns it in a form that 
+# Takes in a recipeName and returns it in a form that
+import re
+
 def parse_handwriting(recipeName: str) -> Union[str | None]:
 	# TODO: implement me
-	return recipeName
+	nonletter = re.compile('[^a-zA-Z\s]')
+	return ' '.join(map(lambda x: x.capitalize(), nonletter.sub('', recipeName.replace('-', ' ').replace('_', ' ')).split())) or None
 
 
 # [TASK 2] ====================================================================
